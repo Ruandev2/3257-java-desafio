@@ -36,7 +36,8 @@ Vamos implementar uma aplicação para consultar o valor médio de veículos (ca
 
 ![image](https://github.com/jacqueline-oliveira/3257-java-desafio/assets/66698429/3d0ac772-3eff-4bad-a1fd-e7c2f34a39bc)
 
-
+## Menu de Opções 
+![dESAFIOJava 2024-05-25 153217](https://github.com/Ruandev2/3257-java-desafio/assets/93599287/177676e4-e7ff-4ffb-a77b-a14474d14d3a)
 
 ## Observações:
 
@@ -61,6 +62,7 @@ https://parallelum.com.br/fipe/api/v1/carros/marcas/21/modelos/560/anos
 - Para saber a avaliação para cada ano disponível, teremos que fazer requisições pelo código por ano, onde obteremos um retorno similar ao que é mostrado abaixo:
 
 https://parallelum.com.br/fipe/api/v1/carros/marcas/21/modelos/560/anos/2003-1
+
 
 ![image](https://github.com/jacqueline-oliveira/3257-java-desafio/assets/66698429/0bed6f40-3112-442e-a6c5-33acd8301c6c)
 
