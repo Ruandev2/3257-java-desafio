@@ -18,75 +18,86 @@ public class Principal {
     private ConverteDados conversor = new ConverteDados();
 
     private final String URL_BASE = "https://parallelum.com.br/fipe/api/v1/";
-
+private void  menu() {
+    System.out.println("""
+            *** OPÇÕES ***
+            Carro
+            Moto
+            Caminhão
+            Sair
+                           
+            Digite uma das opções para consulta:\s
+            """);
+}
     public void exibeMenu() {
-        var menu = """
-               *** OPÇÕES ***
-               Carro
-               Moto
-               Caminhão
-               
-               Digite uma das opções para consulta: 
-               """;
+       try{
+           menu();
+           var opcao = leitura.nextLine();
+           String endereco;
+           while (!opcao.toLowerCase().equals("sair")){
+               if (opcao.toLowerCase().equals("sair")){
+                   break;
+               }else{
+                   if(opcao.toLowerCase().contains("carr")) {
+                       endereco = URL_BASE + "carros/marcas";
+                   } else if (opcao.toLowerCase().contains("mot")) {
+                       endereco = URL_BASE + "motos/marcas";
+                   } else {
+                       endereco = URL_BASE + "caminhoes/marcas";
+                   }
+               }
 
-        System.out.println(menu);
-        var opcao = leitura.nextLine();
-        String endereco;
+               var json = consumo.obterDados(endereco);
+               System.out.println(json);
+               var marcas = conversor.obterLista(json, Dados.class);
+               marcas.stream()
+                       .sorted(Comparator.comparing(Dados::codigo))
+                       .forEach(System.out::println);
 
-        if (opcao.toLowerCase().contains("carr")) {
-            endereco = URL_BASE + "carros/marcas";
-        } else if (opcao.toLowerCase().contains("mot")) {
-            endereco = URL_BASE + "motos/marcas";
-        } else {
-            endereco = URL_BASE + "caminhoes/marcas";
-        }
+               System.out.println("Informe o código da marca para consulta: ");
+               var codigoMarca = leitura.nextLine();
 
-        var json = consumo.obterDados(endereco);
-        System.out.println(json);
-        var marcas = conversor.obterLista(json, Dados.class);
-        marcas.stream()
-                .sorted(Comparator.comparing(Dados::codigo))
-                .forEach(System.out::println);
+               endereco = endereco + "/" + codigoMarca + "/modelos";
+               json = consumo.obterDados(endereco);
+               var modeloLista = conversor.obterDados(json, Modelos.class);
 
-        System.out.println("Informe o código da marca para consulta: ");
-        var codigoMarca = leitura.nextLine();
+               System.out.println("\nModelos dessa marca: ");
+               modeloLista.modelos().stream()
+                       .sorted(Comparator.comparing(Dados::codigo))
+                       .forEach(System.out::println);
 
-        endereco = endereco + "/" + codigoMarca + "/modelos";
-        json = consumo.obterDados(endereco);
-        var modeloLista = conversor.obterDados(json, Modelos.class);
+               System.out.println("\nDigite um trecho do nome do carro a ser buscado");
+               var nomeVeiculo = leitura.nextLine();
 
-        System.out.println("\nModelos dessa marca: ");
-        modeloLista.modelos().stream()
-                .sorted(Comparator.comparing(Dados::codigo))
-                .forEach(System.out::println);
+               List<Dados> modelosFiltrados = modeloLista.modelos().stream()
+                       .filter(m -> m.nome().toLowerCase().contains(nomeVeiculo.toLowerCase()))
+                       .collect(Collectors.toList());
 
-        System.out.println("\nDigite um trecho do nome do carro a ser buscado");
-        var nomeVeiculo = leitura.nextLine();
+               System.out.println("\nModelos filtrados");
+               modelosFiltrados.forEach(System.out::println);
 
-        List<Dados> modelosFiltrados = modeloLista.modelos().stream()
-                .filter(m -> m.nome().toLowerCase().contains(nomeVeiculo.toLowerCase()))
-                .collect(Collectors.toList());
+               System.out.println("Digite por favor o código do modelo para buscar os valores de avaliação: ");
+               var codigoModelo = leitura.nextLine();
 
-        System.out.println("\nModelos filtrados");
-        modelosFiltrados.forEach(System.out::println);
+               endereco = endereco + "/" + codigoModelo + "/anos";
+               json = consumo.obterDados(endereco);
+               List<Dados> anos = conversor.obterLista(json, Dados.class);
+               List<Veiculo> veiculos = new ArrayList<>();
 
-        System.out.println("Digite por favor o código do modelo para buscar os valores de avaliação: ");
-        var codigoModelo = leitura.nextLine();
+               for (int i = 0; i < anos.size(); i++) {
+                   var enderecoAnos = endereco + "/" + anos.get(i).codigo();
+                   json = consumo.obterDados(enderecoAnos);
+                   Veiculo veiculo = conversor.obterDados(json, Veiculo.class);
+                   veiculos.add(veiculo);
+               }
 
-        endereco = endereco + "/" + codigoModelo + "/anos";
-        json = consumo.obterDados(endereco);
-        List<Dados> anos = conversor.obterLista(json, Dados.class);
-        List<Veiculo> veiculos = new ArrayList<>();
+               System.out.println("\nTodos os veículos filtrados com avaliações por ano: ");
+               veiculos.forEach(System.out::println);
 
-        for (int i = 0; i < anos.size(); i++) {
-            var enderecoAnos = endereco + "/" + anos.get(i).codigo();
-            json = consumo.obterDados(enderecoAnos);
-            Veiculo veiculo = conversor.obterDados(json, Veiculo.class);
-            veiculos.add(veiculo);
-        }
-
-        System.out.println("\nTodos os veículos filtrados com avaliações por ano: ");
-        veiculos.forEach(System.out::println);
+           }
+       }catch (IllegalStateException | NullPointerException e) {
+           System.out.println("Falha na Execução");
+       }
 
     }
 }
